@@ -6,7 +6,7 @@ CIndividual::CIndividual(int lowerBound, int upperBound, int solutionSize, std::
 	}
 }
 double CIndividual::calculateFitness(const CEvaluator &evaluator) {
-	this->fitnessVal = evaluator.evaluate(genotype);
+	this->fitnessVal = evaluator.Evaluate(this->genotype);
 	return fitnessVal;
 }
 std::pair<CIndividual, CIndividual> CIndividual::cross(const CIndividual& pcOther, double crossProb, std::mt19937 &re) {
