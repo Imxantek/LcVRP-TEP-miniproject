@@ -25,6 +25,6 @@ void StartOptimization(const string& folder_name, const string& instance_name, i
 }
 int main() {
 	int num_groups = 5;
-	int max_iterations = 40000;
+	int max_iterations = 10000;
 	StartOptimization("Vrp-Set-A", "A-n32-k5", num_groups, max_iterations);
 }
