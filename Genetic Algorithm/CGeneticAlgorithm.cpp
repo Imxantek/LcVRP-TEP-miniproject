@@ -29,24 +29,31 @@ void CGeneticAlgorithm::runIteration() {
 	CIndividual elite;
 	elite.setGenotype(current_best);
 	elite.calculateFitness(evaluator);
-	double worstFitness=0.0;
+	double worstFitness=-1.0;
 	int worstIndex=0;
 	for (int i = 0; i < newPopulation.size(); i++) {
 		newPopulation[i].mutate(mutProb, re, lowerBound, upperBound);
-		if (newPopulation[i].getChanged()) {
-			newPopulation[i].calculateFitness(evaluator);
-			newPopulation[i].setChanged(false);
-		}
-		if (newPopulation[i].getFitness() < bestFitness) {
-			bestFitness = newPopulation[i].getFitness();
+		
+		newPopulation[i].calculateFitness(evaluator);
+		
+		double fit = newPopulation[i].getFitness(); 
+		if (fit < bestFitness) {
+			bestFitness = fit;
 			current_best = newPopulation[i].getGenotype();
 		}
-		if (newPopulation[i].getFitness() > worstFitness) {
-			worstFitness = newPopulation[i].getFitness();
-			worstIndex=i;
+
+		// Szukamy najs³abszego ogniwa w nowym pokoleniu
+		if (i == 0 || fit > worstFitness) {
+			worstFitness = fit;
+			worstIndex = i;
 		}
 	}
-	newPopulation[worstIndex] = elite;
+	if (bestFitness < worstFitness) {
+		CIndividual elite;
+		elite.setGenotype(current_best);
+		elite.calculateFitness(evaluator); // Wa¿ne: policz fitness elity!
+		newPopulation[worstIndex] = elite;
+	}
 	population = newPopulation;
 }
 
