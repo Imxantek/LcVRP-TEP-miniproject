@@ -26,11 +26,11 @@ double ProblemData::CalculateDistance(int i, int j) const {
     }
 
     // 4. Stary, wolny sposób (tylko awaryjnie)
-    if (edge_weight_type_ == "EUC_2D") {
+ /*   if (edge_weight_type_ == "EUC_2D") {
         double dx = coordinates_[i].x - coordinates_[j].x;
         double dy = coordinates_[i].y - coordinates_[j].y;
         return std::sqrt(dx * dx + dy * dy);
-    }
+    }*/
 
     return WRONG_VAL;
 }

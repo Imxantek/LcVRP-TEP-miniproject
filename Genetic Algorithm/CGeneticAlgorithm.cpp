@@ -30,8 +30,8 @@ void CGeneticAlgorithm::runIteration() {
 	CIndividual elite;
 	elite.setGenotype(current_best);
 	elite.calculateFitness(evaluator);
-	double worstFitness=-1.0;
-	int worstIndex=0;
+	double worstFitnessInNewPop = -1.0;
+	int worstIndex=-1;
 	for (int i = 0; i < newPopulation.size(); i++) {
 		newPopulation[i].mutate(mutProb, re, lowerBound, upperBound);
 		
@@ -43,19 +43,18 @@ void CGeneticAlgorithm::runIteration() {
 			current_best = newPopulation[i].getGenotype();
 		}
 
-		// Szukamy najs³abszego ogniwa w nowym pokoleniu
-		if (i == 0 || fit > worstFitness) {
-			worstFitness = fit;
+		if (worstIndex == -1 || fit > worstFitnessInNewPop) {
+			worstFitnessInNewPop = fit;
 			worstIndex = i;
 		}
 	}
-	if (bestFitness < worstFitness) {
+	if (bestFitness < worstFitnessInNewPop && worstIndex != -1) {
 		CIndividual elite;
 		elite.setGenotype(current_best);
-		elite.calculateFitness(evaluator); // Wa¿ne: policz fitness elity!
-		newPopulation[worstIndex] = elite;
+		elite.calculateFitness(evaluator);
+		newPopulation[worstIndex] = std::move(elite);
 	}
-	population = newPopulation;
+	population = std::move(newPopulation);
 }
 
 int CGeneticAlgorithm::selection() {
