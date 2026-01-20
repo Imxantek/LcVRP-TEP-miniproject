@@ -14,7 +14,7 @@ public:
     void build(std::vector<std::vector<int>>& routes, const vector<int>& solution) const;
     double calculateRouteCost(const std::vector<int>& route) const;
     int GetNumGroups() { return num_groups; }
-    int GetNumCustomers() { return problemData.GetNumCustomers() }
+    int GetNumCustomers() { return problemData.GetNumCustomers(); }
 private:
     ProblemData problemData;
     int num_groups;

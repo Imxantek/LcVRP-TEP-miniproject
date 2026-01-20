@@ -3,7 +3,7 @@ std::vector<int>* CGeneticAlgorithm::GetCurrentBest() {
 	return &current_best;
 }
 void CGeneticAlgorithm::initialize() {
-	population.resize(popSize);
+	population.reserve(popSize);
 	bestFitness = INT_MAX;
 	int solutionSize = evaluator.GetNumCustomers();
 	for (int i = 0; i < popSize; i++) {
@@ -23,8 +23,8 @@ void CGeneticAlgorithm::runIteration() {
 		newPopulation.push_back(parentA.cross(parentB, crossProb, re).first);
 		newPopulation.push_back(parentB.cross(parentA, crossProb, re).second);
 	}
-	for (CIndividual i : newPopulation) {
-		i.mutate(mutProb, re);
+	for (CIndividual &i : newPopulation) {
+		i.mutate(mutProb, re, lowerBound, upperBound);
 		if (i.getChanged()) {
 			i.calculateFitness(evaluator);
 			i.setChanged(false);
@@ -37,7 +37,7 @@ void CGeneticAlgorithm::runIteration() {
 }
 
 int CGeneticAlgorithm::selection() {
-	std::uniform_int_distribution<int> randInt(0, popSize);
+	std::uniform_int_distribution<int> randInt(0, popSize-1);
 	int r1 = randInt(re), r2 = randInt(re);
 	if (population[r1].getFitness() > population[r2].getFitness()) {
 		return r2;

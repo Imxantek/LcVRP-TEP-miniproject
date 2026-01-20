@@ -28,9 +28,9 @@ std::pair<CIndividual, CIndividual> CIndividual::cross(const CIndividual& pcOthe
 	child2.isChanged = true;
 	return std::make_pair(child1, child2);
 }
-void CIndividual::mutate(double mutProb, std::mt19937 &re) {
+void CIndividual::mutate(double mutProb, std::mt19937 &re, int lowerBound, int upperBound) {
 	std::uniform_real_distribution<double> d_dist(0, 1);
-	std::uniform_int_distribution<int> int_dist(0, genotype.size());
+	std::uniform_int_distribution<int> int_dist(lowerBound, upperBound);
 	for (int& gene : genotype) {
 		if (mutProb > d_dist(re)) {
 			isChanged = true;
