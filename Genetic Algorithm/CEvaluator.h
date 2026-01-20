@@ -18,6 +18,6 @@ public:
 private:
     ProblemData problemData;
     int num_groups;
-    double WRONG_VAL = -1.0;
+    double WRONG_VAL = 1000000.0;
 };
 #endif CEVALUATOR_H_

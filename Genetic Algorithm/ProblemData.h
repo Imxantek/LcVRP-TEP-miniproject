@@ -57,7 +57,7 @@ public:
 	double CalculateDistance(int i, int j) const;
 	void BuildEdgeWeightMatrix();
 
-	static constexpr double WRONG_VAL = -1.0;
+	static constexpr double WRONG_VAL = 1000000.0;
 
 private:
 	std::vector<std::vector<double>> distanceMatrix;

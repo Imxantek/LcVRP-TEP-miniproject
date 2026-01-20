@@ -10,9 +10,9 @@ ProblemData::ProblemData()
 
 double ProblemData::CalculateDistance(int i, int j) const {
     // 1. Jeœli zapytanie jest niepoprawne - odrzuæ
-    if (i < 0 || i >= dimension_ || j < 0 || j >= dimension_) {
+ /*   if (i < 0 || i >= dimension_ || j < 0 || j >= dimension_) {
         return WRONG_VAL;
-    }
+    }*/
 
     // 2. OPTYMALIZACJA (TEGO BRAKOWA£O):
     // Jeœli macierz jest pusta, ka¿emy j¹ zbudowaæ (tylko raz w historii programu!)
