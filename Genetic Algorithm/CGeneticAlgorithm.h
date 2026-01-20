@@ -6,19 +6,22 @@
 #define CGENETICALGORITHM_H_
 class CGeneticAlgorithm {
 private:
+	CEvaluator& evaluator;
+	std::vector<int> current_best;
+	std::vector<CIndividual> population;
+	mt19937 re;
 	int popSize;
 	double crossProb;
 	double mutProb;
-	std::vector<CIndividual*> population;
-	CEvaluator* evaluator;
-	void selection();
+	double bestFitness;
+	int lowerBound = 0;
+	int upperBound = evaluator.GetNumGroups();
+	int selection();
 public:
-	CGeneticAlgorithm();
-	~CGeneticAlgorithm();
-	CGeneticAlgorithm(const CGeneticAlgorithm& pcOther);
+	CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb) : evaluator(evaluator), 
+		popSize(popSize), crossProb(crossProb), mutProb(mutProb) {};
 	void initialize();
 	void runIteration();
-	void run();
-	void getBestSolution();
+	std::vector<int>* GetCurrentBest();
 };
 #endif CGENETICALGORITHM_H_

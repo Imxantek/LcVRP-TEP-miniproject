@@ -24,13 +24,16 @@ std::pair<CIndividual, CIndividual> CIndividual::cross(const CIndividual& pcOthe
 	child1.genotype.insert(child1.genotype.end(), pcOther.genotype.begin() + cutPoint, pcOther.genotype.end());
 	child2.genotype.insert(child2.genotype.end(), pcOther.genotype.begin(), pcOther.genotype.begin() + cutPoint);
 	child2.genotype.insert(child2.genotype.end(), this->genotype.begin() + cutPoint, this->genotype.end());
+	child1.isChanged = true;
+	child2.isChanged = true;
 	return std::make_pair(child1, child2);
 }
-void CIndividual::mutate(double mutProb, std::mt19937 &re, int lowerBound, int upperBound) {
+void CIndividual::mutate(double mutProb, std::mt19937 &re) {
 	std::uniform_real_distribution<double> d_dist(0, 1);
-	std::uniform_int_distribution<int> int_dist(lowerBound, upperBound);
+	std::uniform_int_distribution<int> int_dist(0, genotype.size());
 	for (int& gene : genotype) {
 		if (mutProb > d_dist(re)) {
+			isChanged = true;
 			gene = int_dist(re);
 		}
 	}

@@ -10,12 +10,13 @@ class CIndividual{
 private:
 	std::vector<int> genotype;
 	double fitnessVal;
+	bool isChanged = false;
 public:
 	CIndividual() : fitnessVal(0.0) {};
 	CIndividual(int lowerBound, int upperBound, int solutionSize, std::mt19937 &re);
 	double calculateFitness(const CEvaluator &Evaluator);
 	std::pair<CIndividual, CIndividual> cross(const CIndividual& pcOther, double crossProb, std::mt19937 &re);
-	void mutate(double mutProb, std::mt19937 &re, int lowerBound, int upperBound);
+	void mutate(double mutProb, std::mt19937 &re);
 	const std::vector<int> &getGenotype() {
 		return genotype;
 	}
@@ -25,5 +26,7 @@ public:
 	void setGenotype(std::vector<int>* v1) {
 		genotype = *v1;
 	}
+	void setChanged(bool val) { isChanged = val; }
+	bool getChanged() { return isChanged;  }
 };
 #endif CINDIVIDUAL_H_
