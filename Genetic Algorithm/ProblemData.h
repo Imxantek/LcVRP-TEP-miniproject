@@ -3,6 +3,7 @@
 #define PROBLEMDATA_H_
 #include <string>
 #include <vector>
+#include<cmath>
 using namespace std;
 
 struct Coordinate {
@@ -59,6 +60,7 @@ public:
 	static constexpr double WRONG_VAL = -1.0;
 
 private:
+	std::vector<std::vector<double>> distanceMatrix;
 	string name_;
 	int dimension_; // total number of nodes (customers + depot)
 	int capacity_; // singular vehicle capacity

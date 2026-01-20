@@ -13,7 +13,7 @@ void StartOptimization(const string& folder_name, const string& instance_name, i
 	ProblemData problem_data = problem_loader.LoadProblem();
 
 	CEvaluator evaluator(problem_data, num_groups);
-	CGeneticAlgorithm optimizer(evaluator, 200, 0.75, 0.3);
+	CGeneticAlgorithm optimizer(evaluator, 200, 0.75, 0.2);
 
 	optimizer.initialize();
 	for (int i = 0; i < max_iterations; i++) {
@@ -25,6 +25,6 @@ void StartOptimization(const string& folder_name, const string& instance_name, i
 }
 int main() {
 	int num_groups = 5;
-	int max_iterations = 1000;
+	int max_iterations = 10000;
 	StartOptimization("Vrp-Set-A", "A-n32-k5", num_groups, max_iterations);
 }
