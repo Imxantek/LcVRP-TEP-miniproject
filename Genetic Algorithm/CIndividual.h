@@ -14,6 +14,10 @@ private:
 public:
 	CIndividual() : fitnessVal(0.0) {};
 	CIndividual(int lowerBound, int upperBound, int solutionSize, std::mt19937 &re);
+	CIndividual(const CIndividual& pcOther) {
+		this->genotype = pcOther.genotype;
+		this->fitnessVal = pcOther.fitnessVal;
+	}
 	double calculateFitness(const CEvaluator &Evaluator);
 	std::pair<CIndividual, CIndividual> cross(const CIndividual& pcOther, double crossProb, std::mt19937 &re) const;
 	void mutate(double mutProb, std::mt19937 &re, int lowerBound, int upperBound);

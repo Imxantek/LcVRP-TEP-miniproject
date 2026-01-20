@@ -8,7 +8,7 @@
 class CGeneticAlgorithm {
 private:
 	CEvaluator& evaluator;
-	std::vector<int> current_best;
+	CIndividual current_best;
 	std::vector<CIndividual> population;
 	std::mt19937 re;
 	
@@ -19,7 +19,7 @@ private:
 
 
 
-	double bestFitness;
+	double bestFitness=INT_MAX;
 	int lowerBound = 0;
 	int upperBound = evaluator.GetNumGroups()-1;
 	int selection();
@@ -28,6 +28,6 @@ public:
 		popSize(popSize), crossProb(crossProb), mutProb(mutProb) {};
 	void initialize();
 	void runIteration();
-	std::vector<int>* GetCurrentBest();
+	CIndividual* GetCurrentBest();
 };
 #endif CGENETICALGORITHM_H_
