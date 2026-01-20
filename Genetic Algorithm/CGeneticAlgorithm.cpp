@@ -1,5 +1,5 @@
 #include "CGeneticAlgorithm.h"
-CIndividual* CGeneticAlgorithm::GetCurrentBest() {
+std::vector<int>* CGeneticAlgorithm::GetCurrentBest() {
 	return &current_best;
 }
 void CGeneticAlgorithm::initialize() {
@@ -8,10 +8,11 @@ void CGeneticAlgorithm::initialize() {
 	int solutionSize = evaluator.GetNumCustomers();
 	for (int i = 0; i < popSize; i++) {
 		CIndividual ind(lowerBound, upperBound, solutionSize, re);
-		double fitness = ind.calculateFitness(evaluator);
+		ind.calculateFitness(evaluator);
+		
 		population.push_back(ind); //optymalne, z racji na semantyke przenoszenia -> vector jest przenoszalny RVO siê tym zajmie
-		if (fitness < bestFitness) {
-			current_best = ind;
+		if (ind.getFitness() < bestFitness) {
+			current_best = ind.getGenotype();
 		}
 	}
 }
@@ -25,6 +26,9 @@ void CGeneticAlgorithm::runIteration() {
 		if (newPopulation.size() == popSize) { break; }
 		newPopulation.push_back(cross.second);
 	}
+	CIndividual elite;
+	elite.setGenotype(current_best);
+	elite.calculateFitness(evaluator);
 	double worstFitness=0.0;
 	int worstIndex=0;
 	for (int i = 0; i < newPopulation.size(); i++) {
@@ -35,14 +39,14 @@ void CGeneticAlgorithm::runIteration() {
 		}
 		if (newPopulation[i].getFitness() < bestFitness) {
 			bestFitness = newPopulation[i].getFitness();
-			current_best = newPopulation[i];
+			current_best = newPopulation[i].getGenotype();
 		}
 		if (newPopulation[i].getFitness() > worstFitness) {
 			worstFitness = newPopulation[i].getFitness();
 			worstIndex=i;
 		}
 	}
-	newPopulation[worstIndex] = current_best;
+	newPopulation[worstIndex] = elite;
 	population = newPopulation;
 }
 

@@ -27,8 +27,9 @@ public:
 	double getFitness() {
 		return fitnessVal;
 	}
-	void setGenotype(std::vector<int>* v1) {
-		genotype = *v1;
+	void setGenotype(std::vector<int>& v1) {
+		genotype = v1;
+		isChanged = true;
 	}
 	void setChanged(bool val) { isChanged = val; }
 	bool getChanged() { return isChanged;  }

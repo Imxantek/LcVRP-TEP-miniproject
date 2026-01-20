@@ -20,11 +20,11 @@ void StartOptimization(const string& folder_name, const string& instance_name, i
 		optimizer.runIteration();
 	}
 
-	CIndividual *bestSolution = optimizer.GetCurrentBest();
-	cout << "Best Fitness: " << bestSolution->getFitness();
+	std::vector<int>* bestSolution = optimizer.GetCurrentBest();
+	cout << "Best Fitness: " << evaluator.Evaluate(*bestSolution);
 }
 int main() {
 	int num_groups = 5;
-	int max_iterations = 2000;
+	int max_iterations = 1000;
 	StartOptimization("Vrp-Set-A", "A-n32-k5", num_groups, max_iterations);
 }
