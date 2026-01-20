@@ -9,7 +9,7 @@ double CIndividual::calculateFitness(const CEvaluator &evaluator) {
 	this->fitnessVal = evaluator.Evaluate(this->genotype);
 	return fitnessVal;
 }
-std::pair<CIndividual, CIndividual> CIndividual::cross(const CIndividual& pcOther, double crossProb, std::mt19937 &re) {
+std::pair<CIndividual, CIndividual> CIndividual::cross(const CIndividual& pcOther, double crossProb, std::mt19937 &re) const{
 	std::uniform_real_distribution<double> d_dist(0, 1);
 	if (crossProb < d_dist(re)) {
 		return std::make_pair(*this, pcOther);

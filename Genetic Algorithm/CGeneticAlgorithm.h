@@ -1,5 +1,6 @@
 #pragma once
 #include<vector>
+#include<utility>
 #include"CIndividual.h"
 #include"CEvaluator.h"
 #ifndef CGENETICALGORITHM_H_
@@ -15,7 +16,7 @@ private:
 	double mutProb;
 	double bestFitness;
 	int lowerBound = 0;
-	int upperBound = evaluator.GetNumGroups();
+	int upperBound = evaluator.GetNumGroups()-1;
 	int selection();
 public:
 	CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb) : evaluator(evaluator), 

@@ -18,10 +18,11 @@ void CGeneticAlgorithm::initialize() {
 void CGeneticAlgorithm::runIteration() {
 	std::vector<CIndividual> newPopulation;
 	while (newPopulation.size() < popSize) {
-		CIndividual parentA = population[selection()];
-		CIndividual parentB = population[selection()];
-		newPopulation.push_back(parentA.cross(parentB, crossProb, re).first);
-		newPopulation.push_back(parentB.cross(parentA, crossProb, re).second);
+		const CIndividual &parentA = population[selection()];
+		const CIndividual &parentB = population[selection()];
+		std::pair<CIndividual, CIndividual> cross = parentA.cross(parentB, crossProb, re);
+		newPopulation.push_back(cross.first);
+		newPopulation.push_back(cross.second);
 	}
 	for (CIndividual &i : newPopulation) {
 		i.mutate(mutProb, re, lowerBound, upperBound);
