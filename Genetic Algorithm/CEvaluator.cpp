@@ -1,129 +1,119 @@
 #include "CEvaluator.h"
-CEvaluator::CEvaluator(const ProblemData& data, int groups) :data(data), groups(groups), customers(data.GetNumCustomers()) {};
+CEvaluator::CEvaluator(const ProblemData& problemData, int num_groups) :
+	problemData(problemData), num_groups(num_groups) {};
 
-double CEvaluator::Evaluate(const vector<int>& solution) const {
-	if (solution.size() != static_cast<int>(customers)) {
+double CEvaluator::Evaluate(const vector<int>& solution) const{
+	if (solution.size() != problemData.GetNumCustomers() || !isValid(solution) || !validateConstraints()) {
 		return WRONG_VAL;
 	}
-	if (!ValidateConstraints()) {
-		return WRONG_VAL;
-	}
-	if (!isValid(solution)) {
-		return WRONG_VAL;
-	}
-	vector<vector<int>> routes;
-	BuildRoutes(solution, routes);
-	double total_cost = 0.0;
-	for (const auto& route : routes) {
-		double route_cost = calculateRouteCost(route);
-		if (route_cost < 0.0) {
+	std::vector<std::vector<int>> routes;
+	build(routes, solution);
+	double cost = 0.0;
+	for (const auto &a: routes) {
+		double routeCost = calculateRouteCost(a);
+		if (routeCost < 0) {
 			return WRONG_VAL;
 		}
-		total_cost += route_cost;
+		cost += routeCost;
 	}
-	return total_cost;
+	return cost;
 }
-
-void CEvaluator::BuildRoutes(const vector<int>& grouping, vector<vector<int>>& routes) const {
+bool CEvaluator::isValid(const vector<int>& solution) const{
+	for (int i : solution) {
+		if (i<0 || i>num_groups - 1) {
+			return false;
+		}
+	}
+	return true;
+}
+bool CEvaluator::validateConstraints() const {
+	int depotID = problemData.GetDepot() - 1;
+	int capacity = problemData.GetCapacity();
+	const vector<int>& demands = problemData.GetDemands();
+	for (int i = 2; i <= problemData.GetDimension(); i++) {
+		int customerID = i - 1;
+		if (demands[customerID] > capacity) return false;
+		if (problemData.HasDistanceConstraint()) {
+			double distToDepot = problemData.CalculateDistance(depotID, customerID);
+			double maxDist = problemData.GetDistance();
+			if (distToDepot < 0.0) return false;
+			if (2 * distToDepot > maxDist) return false;
+		}
+	}
+	return true;
+}
+void CEvaluator::build(std::vector<std::vector<int>> &routes, const std::vector<int> &solution) const {
 	routes.clear();
-	routes.resize(groups);
-	const vector<int>& permutation = data.GetPermutation();
-	for (int i = 0; i < permutation.size(); ++i) {
-		int customer_id = permutation[i];
-		int customer_index = customer_id - 2;
-		if (customer_index >= 0 && customer_index < customers) {
-			int group = grouping[customer_index];
-			routes[group].push_back(customer_id);
+	routes.resize(num_groups);
+	const vector<int>& permutation = problemData.GetPermutation();
+	for (int i = 0; i < permutation.size(); i++) {
+		int idx = permutation[i] - 2;
+		if (idx >= 0 && idx < problemData.GetNumCustomers()) {
+			int group = solution[idx];
+			routes[group].push_back(idx+2);
 		}
 	}
 }
-
-bool CEvaluator::isValid(const vector<int>& grouping) const {
-	for (int group : grouping) {
-		if (group < 0 || group > groups-1) {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool CEvaluator::ValidateConstraints() const {
-	int depot = data.GetDepot();
-	int depot_index = depot - 1; 
-	const vector<int>& demands = data.GetDemands();
-	int capacity = data.GetCapacity();
-
-	for (int customer_id = 2; customer_id <= data.GetDimension(); ++customer_id) {
-		int customer_index = customer_id - 1;
-		if (demands[customer_index] > capacity) {
-			return false;
-		}
-		if (data.HasDistanceConstraint()) {
-			double max_distance = data.GetDistance();
-			double dist_to_depot = data.CalculateDistance(depot_index, customer_index);
-			if (dist_to_depot < 0.0) {
-				return false;
-			}
-			if (dist_to_depot * 2.0 > max_distance) {
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-double CEvaluator::calculateRouteCost(const vector<int>& route) const {
+double CEvaluator::calculateRouteCost(const std::vector<int> &route) const{
 	if (route.empty()) {
 		return 0.0;
 	}
-	double total_cost = 0.0;
-	int depot = data.GetDepot();
-	int depot_index = depot - 1; 
-	int capacity = data.GetCapacity();
-	double max_distance = data.HasDistanceConstraint() ? data.GetDistance() : -1.0;
-	const vector<int>& demands = data.GetDemands();
-	int current_load = 0;
-	double current_distance = 0.0;
-	int last_position_index = depot_index;
+	int depotID = problemData.GetDepot()-1;
+	double routeCost = 0.0;
+	double capacity = problemData.GetCapacity();
+	double maxDist;
+	if (problemData.HasDistanceConstraint()) {
+		maxDist = problemData.GetDistance();
+	}
+	else {
+		maxDist = -1.0;
+	}
+	const vector<int>& demands = problemData.GetDemands();
+	
+	int currentLoad = 0;
+	double currentDistance = 0.0;
+	int currentPos = depotID;
+	for (int i = 0; i < route.size(); i++) {
+		int customerID = route[i] - 1;
+		int customerDemand = demands[customerID];
+		if (currentLoad + customerDemand > capacity) {
+			double distDepot = problemData.CalculateDistance(depotID, currentPos);
+			if (distDepot < 0.0) {
+				return WRONG_VAL;
+			}
+			currentDistance += distDepot;
+			routeCost += currentDistance;
 
-	for (int i = 0; i < route.size(); ++i) {
-		int customer_id = route[i];
-		int customer_index = customer_id - 1;
-		int customer_demand = demands[customer_index];
-		if (current_load + customer_demand > capacity) {
-			double dist_to_depot = data.CalculateDistance(last_position_index, depot_index);
-			if (dist_to_depot < 0.0) return WRONG_VAL;
-			current_distance += dist_to_depot;
-			total_cost += current_distance;
-			current_load = 0;
-			current_distance = 0.0;
-			last_position_index = depot_index;
+			currentLoad = 0;
+			currentDistance = 0.0;
+			currentPos = depotID;
 		}
-		double dist_to_customer = data.CalculateDistance(last_position_index, customer_index);
-		if (dist_to_customer < 0.0) return WRONG_VAL;
-		if (max_distance > 0.0) {
-			double dist_back_to_depot = data.CalculateDistance(customer_index, depot_index);
-			if (dist_back_to_depot < 0.0) return WRONG_VAL;
-			if (current_distance + dist_to_customer + dist_back_to_depot > max_distance) {
-				double dist_to_depot = data.CalculateDistance(last_position_index, depot_index);
-				if (dist_to_depot < 0.0) return WRONG_VAL;
-				current_distance += dist_to_depot;
-				total_cost += current_distance;
-				current_load = 0;
-				current_distance = 0.0;
-				last_position_index = depot_index;
-				dist_to_customer = data.CalculateDistance(depot_index, customer_index);
-				if (dist_to_customer < 0.0) return WRONG_VAL;
+		double distCustomer = problemData.CalculateDistance(currentPos, customerID);
+		if (distCustomer < 0.0) return WRONG_VAL;
+		if (maxDist != -1) {
+			double distCustomerToDepot = problemData.CalculateDistance(customerID, depotID);
+			if (distCustomerToDepot < 0.0) return WRONG_VAL;
+			if (currentDistance + distCustomer + distCustomerToDepot > maxDist) {
+				double distDepot = problemData.CalculateDistance(currentPos, depotID);
+				if (distDepot < 0.0) return WRONG_VAL;
+				currentDistance += distDepot;
+				routeCost += currentDistance;
+				
+				currentLoad = 0;
+				currentDistance = 0.0;
+				currentPos = depotID;
+
+				distCustomer = problemData.CalculateDistance(depotID, customerID);
+				if (distCustomer < 0.0) return WRONG_VAL;
 			}
 		}
-		current_distance += dist_to_customer;
-		current_load += customer_demand;
-		last_position_index = customer_index;
+		currentDistance += distCustomer;
+		currentLoad += customerDemand;
+		currentPos = customerID;
 	}
-	double dist_to_depot = data.CalculateDistance(last_position_index, depot_index);
-	if (dist_to_depot < 0.0) return WRONG_VAL;
-	current_distance += dist_to_depot;
-	total_cost += current_distance;
-	return total_cost;
+	double distDepot = problemData.CalculateDistance(currentPos, depotID);
+	if (distDepot < 0.0) return WRONG_VAL;
+	currentDistance += distDepot;
+	routeCost += currentDistance;
+	return routeCost;
 }
-

@@ -7,21 +7,15 @@
 #include <utility> 
 class CEvaluator {
 public:
-    CEvaluator(const ProblemData& data, int num_groups);
-
+    CEvaluator(const ProblemData& problemData, int num_groups);
     double Evaluate(const vector<int>& solution) const;
-    double Evaluate(const int* solution) const;
-
-private:
-    const ProblemData& data;
-    int groups;
-    int customers;
-    const double WRONG_VAL = -1.0;
-    
+    bool isValid(const vector<int>& solution) const;
+    bool validateConstraints() const;
+    void build(std::vector<std::vector<int>>& routes, const vector<int>& solution) const;
     double calculateRouteCost(const std::vector<int>& route) const;
-    bool isValid(const vector<int>& grouping) const;
-    bool ValidateConstraints() const;
-    void BuildRoutes(const vector<int>& grouping, vector<vector<int>>& routes) const;
+private:
+    ProblemData problemData;
+    int num_groups;
+    double WRONG_VAL = -1.0;
 };
-
-#endif // CEVALUATOR_H_
+#endif CEVALUATOR_H_
