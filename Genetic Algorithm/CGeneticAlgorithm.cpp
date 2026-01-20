@@ -22,6 +22,7 @@ void CGeneticAlgorithm::runIteration() {
 		const CIndividual &parentB = population[selection()];
 		std::pair<CIndividual, CIndividual> cross = parentA.cross(parentB, crossProb, re);
 		newPopulation.push_back(cross.first);
+		if (newPopulation.size() == popSize) { break; }
 		newPopulation.push_back(cross.second);
 	}
 	for (CIndividual &i : newPopulation) {

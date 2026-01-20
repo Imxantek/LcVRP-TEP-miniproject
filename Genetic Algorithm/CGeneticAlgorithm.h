@@ -10,10 +10,15 @@ private:
 	CEvaluator& evaluator;
 	std::vector<int> current_best;
 	std::vector<CIndividual> population;
-	mt19937 re;
+	std::mt19937 re;
+	
+	
 	int popSize;
 	double crossProb;
 	double mutProb;
+
+
+
 	double bestFitness;
 	int lowerBound = 0;
 	int upperBound = evaluator.GetNumGroups()-1;
