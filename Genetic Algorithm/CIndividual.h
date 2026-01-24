@@ -33,5 +33,7 @@ public:
 	}
 	void setChanged(bool val) { isChanged = val; }
 	bool getChanged() { return isChanged;  }
+	void setFitness(double val) { fitnessVal = val; }
+	void localSearch(const CEvaluator& evaluator, std::mt19937& re);
 };
 #endif CINDIVIDUAL_H_

@@ -1,19 +1,28 @@
 #include "CEvaluator.h"
-CEvaluator::CEvaluator(const ProblemData& problemData, int num_groups) :
-	problemData(problemData), num_groups(num_groups) {};
+#include <limits> // do sprawdzenia max double
 
+CEvaluator::CEvaluator(const ProblemData& problemData, int num_groups) :
+	problemData(problemData), num_groups(num_groups)
+{
+	routes_cache.resize(num_groups);
+	int avg_cities = problemData.GetNumCustomers() / num_groups + 2;
+	for (auto& route : routes_cache) {
+		route.reserve(avg_cities);
+	}
+};
 double CEvaluator::Evaluate(const vector<int>& solution) const{
-	if (solution.size() != problemData.GetNumCustomers() || !isValid(solution) || !validateConstraints()) {
+	if (solution.size() != problemData.GetNumCustomers() || !isValid(solution)) {
 		return WRONG_VAL;
 	}
-	std::vector<std::vector<int>> routes;
-	build(routes, solution);
+	for (auto& route : routes_cache) {
+		route.clear();
+	}
+	build(routes_cache, solution);
+
 	double cost = 0.0;
-	for (const auto &a: routes) {
-		double routeCost = calculateRouteCost(a);
-		if (routeCost < 0) {
-			return WRONG_VAL;
-		}
+	for (const auto& route : routes_cache) {
+		double routeCost = calculateRouteCost(route);
+		if (routeCost == WRONG_VAL) return WRONG_VAL;
 		cost += routeCost;
 	}
 	return cost;
@@ -42,23 +51,32 @@ bool CEvaluator::validateConstraints() const {
 	}
 	return true;
 }
-void CEvaluator::build(std::vector<std::vector<int>> &routes, const std::vector<int> &solution) const {
-	routes.clear();
-	routes.resize(num_groups);
+void CEvaluator::build(std::vector<std::vector<int>>& routes, const std::vector<int>& solution) const {
+	// USUNIÊTO: routes.clear();  <-- To niszczy³o cache
+	// USUNIÊTO: routes.resize(num_groups); <-- To alokowa³o od nowa
+
+	// Zak³adamy, ¿e 'routes' ma ju¿ odpowiedni rozmiar i wyczyszczone œrodki
+	// (gwarantuje to metoda Evaluate)
+
 	const vector<int>& permutation = problemData.GetPermutation();
-	for (int i = 0; i < permutation.size(); i++) {
+	// U¿ywamy size_t dla wydajnoœci i unikniêcia warningów
+	size_t permSize = permutation.size();
+
+	for (size_t i = 0; i < permSize; i++) {
 		int idx = permutation[i] - 2;
+		// Opcjonalnie: usuniêcie tego ifa w wersji Release, jeœli dane s¹ pewne
 		if (idx >= 0 && idx < problemData.GetNumCustomers()) {
 			int group = solution[idx];
-			routes[group].push_back(idx+2);
+			// Tu po prostu wrzucamy do gotowego kube³ka
+			routes[group].push_back(idx + 2);
 		}
 	}
 }
-double CEvaluator::calculateRouteCost(const std::vector<int> &route) const{
+double CEvaluator::calculateRouteCost(const std::vector<int>& route) const {
 	if (route.empty()) {
 		return 0.0;
 	}
-	int depotID = problemData.GetDepot()-1;
+	int depotID = problemData.GetDepot() - 1;
 	double routeCost = 0.0;
 	double capacity = problemData.GetCapacity();
 	double maxDist;
@@ -69,7 +87,7 @@ double CEvaluator::calculateRouteCost(const std::vector<int> &route) const{
 		maxDist = -1.0;
 	}
 	const vector<int>& demands = problemData.GetDemands();
-	
+
 	int currentLoad = 0;
 	double currentDistance = 0.0;
 	int currentPos = depotID;
@@ -98,7 +116,7 @@ double CEvaluator::calculateRouteCost(const std::vector<int> &route) const{
 				if (distDepot < 0.0) return WRONG_VAL;
 				currentDistance += distDepot;
 				routeCost += currentDistance;
-				
+
 				currentLoad = 0;
 				currentDistance = 0.0;
 				currentPos = depotID;

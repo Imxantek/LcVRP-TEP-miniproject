@@ -139,6 +139,9 @@
     <ClCompile Include="ProblemData.cpp" />
     <ClCompile Include="ProblemLoader.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="data\lcvrp\Vrp-Set-A\A-n32-k5.lcvrp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

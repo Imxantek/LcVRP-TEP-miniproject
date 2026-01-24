@@ -9,30 +9,7 @@ ProblemData::ProblemData()
 }
 
 double ProblemData::CalculateDistance(int i, int j) const {
-    // 1. Jeœli zapytanie jest niepoprawne - odrzuæ
- /*   if (i < 0 || i >= dimension_ || j < 0 || j >= dimension_) {
-        return WRONG_VAL;
-    }*/
-
-    // 2. OPTYMALIZACJA (TEGO BRAKOWA£O):
-    // Jeœli macierz jest pusta, ka¿emy j¹ zbudowaæ (tylko raz w historii programu!)
-    if (edge_weights_.empty()) {
-        const_cast<ProblemData*>(this)->BuildEdgeWeightMatrix();
-    }
-
-    // 3. Pobranie gotowego wyniku z pamiêci (B£YSKAWICZNE)
-    if (!edge_weights_.empty()) {
-        return edge_weights_[i][j];
-    }
-
-    // 4. Stary, wolny sposób (tylko awaryjnie)
- /*   if (edge_weight_type_ == "EUC_2D") {
-        double dx = coordinates_[i].x - coordinates_[j].x;
-        double dy = coordinates_[i].y - coordinates_[j].y;
-        return std::sqrt(dx * dx + dy * dy);
-    }*/
-
-    return WRONG_VAL;
+	return edge_weights_[i][j];
 }
 void ProblemData::BuildEdgeWeightMatrix() {
     if (edge_weight_type_ == "EUC_2D") {

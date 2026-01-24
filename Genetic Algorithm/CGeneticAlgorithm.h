@@ -10,7 +10,7 @@ private:
 	CEvaluator& evaluator;
 	std::vector<int> current_best;
 	std::vector<CIndividual> population;
-	std::mt19937 re;
+	std::mt19937& re;
 	
 	
 	int popSize;
@@ -24,10 +24,11 @@ private:
 	int upperBound = evaluator.GetNumGroups()-1;
 	int selection();
 public:
-	CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb) : evaluator(evaluator), 
-		popSize(popSize), crossProb(crossProb), mutProb(mutProb) {};
+	CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb, std::mt19937& re) : evaluator(evaluator),
+		popSize(popSize), crossProb(crossProb), mutProb(mutProb), re(re) {};
 	void initialize();
 	void runIteration();
 	std::vector<int>* GetCurrentBest();
+	double getBestFitness() { return bestFitness; }
 };
 #endif CGENETICALGORITHM_H_

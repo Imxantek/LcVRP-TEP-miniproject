@@ -17,46 +17,57 @@ void CGeneticAlgorithm::initialize() {
 	}
 }
 void CGeneticAlgorithm::runIteration() {
-	std::vector<CIndividual> newPopulation;
-	while (newPopulation.size() < popSize) {
-		const CIndividual &parentA = population[selection()];
-		const CIndividual &parentB = population[selection()];
-		std::pair<CIndividual, CIndividual> cross = parentA.cross(parentB, crossProb, re);
-		newPopulation.push_back(std::move(cross.first));
-		if (newPopulation.size() < popSize) {
-			newPopulation.push_back(std::move(cross.second));
-		}
-	}
-	CIndividual elite;
-	elite.setGenotype(current_best);
-	elite.calculateFitness(evaluator);
-	double worstFitnessInNewPop = -1.0;
-	int worstIndex=-1;
-	for (int i = 0; i < newPopulation.size(); i++) {
-		newPopulation[i].mutate(mutProb, re, lowerBound, upperBound);
-		
-		newPopulation[i].calculateFitness(evaluator);
-		
-		double fit = newPopulation[i].getFitness(); 
-		if (fit < bestFitness) {
-			bestFitness = fit;
-			current_best = newPopulation[i].getGenotype();
-		}
+    std::vector<CIndividual> newPopulation;
+    newPopulation.reserve(popSize);
 
-		if (worstIndex == -1 || fit > worstFitnessInNewPop) {
-			worstFitnessInNewPop = fit;
-			worstIndex = i;
-		}
-	}
-	if (bestFitness < worstFitnessInNewPop && worstIndex != -1) {
-		CIndividual elite;
-		elite.setGenotype(current_best);
-		elite.calculateFitness(evaluator);
-		newPopulation[worstIndex] = std::move(elite);
-	}
-	population = std::move(newPopulation);
+    // 1. Elityzm (bez zmian)
+    CIndividual elite;
+    elite.setGenotype(current_best);
+    elite.calculateFitness(evaluator);
+
+    // BONUS: Spróbujmy jeszcze ulepszyæ elitê Local Searchem!
+    elite.localSearch(evaluator, re);
+    if (elite.getFitness() < bestFitness) {
+        bestFitness = elite.getFitness();
+        current_best = elite.getGenotype();
+    }
+
+    newPopulation.push_back(std::move(elite));
+
+    while (newPopulation.size() < popSize) {
+        const CIndividual& parentA = population[selection()];
+        const CIndividual& parentB = population[selection()];
+
+        std::pair<CIndividual, CIndividual> children = parentA.cross(parentB, crossProb, re);
+
+        // Dziecko 1
+        children.first.mutate(mutProb, re, lowerBound, upperBound);
+        // TUTAJ ZMIANA: Lekkie douczanie ka¿dego dziecka
+        // Mo¿esz to robiæ z pewnym prawdopodobieñstwem, np. 10%, ¿eby nie zabiæ wydajnoœci
+        children.first.localSearch(evaluator, re);
+        children.first.calculateFitness(evaluator);
+
+        if (children.first.getFitness() < bestFitness) {
+            bestFitness = children.first.getFitness();
+            current_best = children.first.getGenotype();
+        }
+        newPopulation.push_back(std::move(children.first));
+
+        // Dziecko 2 (analogicznie)
+        if (newPopulation.size() < popSize) {
+            children.second.mutate(mutProb, re, lowerBound, upperBound);
+            children.second.localSearch(evaluator, re); // Douczanie
+            children.second.calculateFitness(evaluator);
+
+            if (children.second.getFitness() < bestFitness) {
+                bestFitness = children.second.getFitness();
+                current_best = children.second.getGenotype();
+            }
+            newPopulation.push_back(std::move(children.second));
+        }
+    }
+    population = std::move(newPopulation);
 }
-
 int CGeneticAlgorithm::selection() {
 	std::uniform_int_distribution<int> randInt(0, popSize-1);
 	int r1 = randInt(re), r2 = randInt(re);
