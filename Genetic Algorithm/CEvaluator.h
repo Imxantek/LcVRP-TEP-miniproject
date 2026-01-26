@@ -8,17 +8,16 @@
 class CEvaluator {
 public:
     CEvaluator(const ProblemData& problemData, int num_groups);
-    double Evaluate(const vector<int>& solution) const;
+    std::pair<double, bool> Evaluate(const vector<int>& solution) const;
     bool isValid(const vector<int>& solution) const;
-    bool validateConstraints() const;
     void build(std::vector<std::vector<int>>& routes, const vector<int>& solution) const;
-    double calculateRouteCost(const std::vector<int>& route) const;
+    std::pair<double, bool> calculateRouteCost(const std::vector<int>& route) const;
     int GetNumGroups() const { return num_groups; }
     int GetNumCustomers() const { return problemData.GetNumCustomers(); }
 private:
     ProblemData problemData;
     int num_groups;
-    double WRONG_VAL = 1000000.0;
+    double WRONG_VAL; 
     mutable std::vector<std::vector<int>> routes_cache;
 };
 #endif CEVALUATOR_H_

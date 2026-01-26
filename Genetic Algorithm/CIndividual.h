@@ -10,6 +10,7 @@ class CIndividual{
 private:
 	std::vector<int> genotype;
 	double fitnessVal;
+	bool valid;
 	bool isChanged = false;
 public:
 	CIndividual() : fitnessVal(0.0) {};
@@ -35,5 +36,7 @@ public:
 	bool getChanged() { return isChanged;  }
 	void setFitness(double val) { fitnessVal = val; }
 	void localSearch(const CEvaluator& evaluator, std::mt19937& re);
+	bool isValid() { return valid; }
+
 };
 #endif CINDIVIDUAL_H_

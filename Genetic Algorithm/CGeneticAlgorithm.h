@@ -1,4 +1,5 @@
 #pragma once
+#include<iostream>
 #include<vector>
 #include<utility>
 #include"CIndividual.h"
@@ -16,16 +17,20 @@ private:
 	int popSize;
 	double crossProb;
 	double mutProb;
+	int itCounter = 0;
 
 
 
 	double bestFitness=INT_MAX;
 	int lowerBound = 0;
-	int upperBound = evaluator.GetNumGroups()-1;
+	int upperBound;
 	int selection();
+
+
+
+	void printValidity(std::vector<CIndividual>& population);
 public:
-	CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb, std::mt19937& re) : evaluator(evaluator),
-		popSize(popSize), crossProb(crossProb), mutProb(mutProb), re(re) {};
+	CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb, std::mt19937& re);
 	void initialize();
 	void runIteration();
 	std::vector<int>* GetCurrentBest();

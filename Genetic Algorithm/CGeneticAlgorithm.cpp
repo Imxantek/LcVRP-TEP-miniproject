@@ -1,31 +1,49 @@
-#include "CGeneticAlgorithm.h"
+ï»¿#include "CGeneticAlgorithm.h"
+#include<windows.h>
+CGeneticAlgorithm::CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb, std::mt19937& re)
+    : evaluator(evaluator), popSize(popSize), crossProb(crossProb), mutProb(mutProb), re(re)
+{
+    this->lowerBound = 0;
+    this->upperBound = evaluator.GetNumGroups(); 
+    this->bestFitness = DBL_MAX;
+    this->itCounter = 0;
+}
+
 std::vector<int>* CGeneticAlgorithm::GetCurrentBest() {
-	return &current_best;
+    return &current_best;
 }
 void CGeneticAlgorithm::initialize() {
-	population.reserve(popSize);
-	bestFitness = INT_MAX;
-	int solutionSize = evaluator.GetNumCustomers();
-	for (int i = 0; i < popSize; i++) {
-		CIndividual ind(lowerBound, upperBound, solutionSize, re);
-		ind.calculateFitness(evaluator);
-		
-		population.push_back(ind); //optymalne, z racji na semantyke przenoszenia -> vector jest przenoszalny RVO siê tym zajmie
-		if (ind.getFitness() < bestFitness) {
-			current_best = ind.getGenotype();
-		}
-	}
+    population.reserve(popSize);
+    bestFitness = DBL_MAX;
+    int solutionSize = evaluator.GetNumCustomers();
+    for (int i = 0; i < popSize; i++) {
+        CIndividual ind(lowerBound, upperBound, solutionSize, re);
+        population.push_back(ind); //optymalne, z racji na semantyke przenoszenia -> vector jest przenoszalny RVO siÃª tym zajmie
+    }
 }
 void CGeneticAlgorithm::runIteration() {
+    for (CIndividual& ind : population) {
+        ind.calculateFitness(evaluator);
+        if (ind.getFitness() < bestFitness) {
+            bestFitness = ind.getFitness();
+            current_best = ind.getGenotype();
+            itCounter++;
+        }
+    }
+
+    if (current_best.empty() && !population.empty()) {
+        current_best = population[0].getGenotype();
+        bestFitness = population[0].getFitness();
+    }
+
     std::vector<CIndividual> newPopulation;
     newPopulation.reserve(popSize);
 
-    // 1. Elityzm (bez zmian)
+    // Tworzenie elity
     CIndividual elite;
-    elite.setGenotype(current_best);
-    elite.calculateFitness(evaluator);
+    elite.setGenotype(current_best); // Teraz current_best jest bezpieczny (bez -1)
+    elite.calculateFitness(evaluator); // To teraz zadziaÅ‚a poprawnie
 
-    // BONUS: Spróbujmy jeszcze ulepszyæ elitê Local Searchem!
     elite.localSearch(evaluator, re);
     if (elite.getFitness() < bestFitness) {
         bestFitness = elite.getFitness();
@@ -33,17 +51,17 @@ void CGeneticAlgorithm::runIteration() {
     }
 
     newPopulation.push_back(std::move(elite));
-
     while (newPopulation.size() < popSize) {
         const CIndividual& parentA = population[selection()];
         const CIndividual& parentB = population[selection()];
 
         std::pair<CIndividual, CIndividual> children = parentA.cross(parentB, crossProb, re);
-
-        // Dziecko 1
-        children.first.mutate(mutProb, re, lowerBound, upperBound);
-        // TUTAJ ZMIANA: Lekkie douczanie ka¿dego dziecka
-        // Mo¿esz to robiæ z pewnym prawdopodobieñstwem, np. 10%, ¿eby nie zabiæ wydajnoœci
+        if (itCounter < 1000) {
+            children.first.mutate(mutProb, re, lowerBound, upperBound);
+        }
+        else {
+            children.first.mutate(mutProb * 2, re, lowerBound, upperBound);
+        }
         children.first.localSearch(evaluator, re);
         children.first.calculateFitness(evaluator);
 
@@ -52,11 +70,14 @@ void CGeneticAlgorithm::runIteration() {
             current_best = children.first.getGenotype();
         }
         newPopulation.push_back(std::move(children.first));
-
-        // Dziecko 2 (analogicznie)
         if (newPopulation.size() < popSize) {
-            children.second.mutate(mutProb, re, lowerBound, upperBound);
-            children.second.localSearch(evaluator, re); // Douczanie
+            if (itCounter < 1000) {
+                children.second.mutate(mutProb, re, lowerBound, upperBound);
+            }
+            else {
+                children.second.mutate(mutProb * 2, re, lowerBound, upperBound);
+            }
+            children.second.localSearch(evaluator, re);
             children.second.calculateFitness(evaluator);
 
             if (children.second.getFitness() < bestFitness) {
@@ -67,12 +88,22 @@ void CGeneticAlgorithm::runIteration() {
         }
     }
     population = std::move(newPopulation);
+    itCounter++;
+	//printValidity(population);
+    //Sleep(500);
 }
 int CGeneticAlgorithm::selection() {
-	std::uniform_int_distribution<int> randInt(0, popSize-1);
-	int r1 = randInt(re), r2 = randInt(re);
-	if (population[r1].getFitness() > population[r2].getFitness()) {
-		return r2;
+    std::uniform_int_distribution<int> randInt(0, popSize - 1);
+    int r1 = randInt(re), r2 = randInt(re);
+    if (population[r1].getFitness() > population[r2].getFitness()) {
+        return r2;
+    }
+    return r1;
+}
+
+void CGeneticAlgorithm::printValidity(std::vector<CIndividual>& population) {
+    for(auto& individual : population) {
+		std::cout << individual.isValid() << " ";
 	}
-	return r1;
+	std::cout << std::endl; 
 }

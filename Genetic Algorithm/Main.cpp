@@ -21,7 +21,7 @@ void StartOptimizationByNums(const string& folder_name, const string& instance_n
 	}
 
 	std::vector<int>* bestSolution = optimizer.GetCurrentBest();
-	cout << "Best Fitness: " << evaluator.Evaluate(*bestSolution);
+	cout << "Best Fitness: " << evaluator.Evaluate(*bestSolution).first;
 }
 void StrartOptimizationByTime(const string& folder_name, const string& instance_name, int num_groups, int maxTime) {
 	ProblemLoader problem_loader(folder_name, instance_name);
@@ -45,7 +45,7 @@ void StrartOptimizationByTime(const string& folder_name, const string& instance_
 
 	}
 	std::vector<int>* bestSolution = optimizer.GetCurrentBest();
-	cout << "Best Fitness: " << evaluator.Evaluate(*bestSolution);
+	cout << "Best Fitness: " << evaluator.Evaluate(*bestSolution).first;
 }
 int main() {
 	int num_groups = 131;

@@ -134,7 +134,6 @@
     <ClCompile Include="CEvaluator.cpp" />
     <ClCompile Include="CGeneticAlgorithm.cpp" />
     <ClCompile Include="CIndividual.cpp" />
-    <ClCompile Include="CInterface.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ProblemData.cpp" />
     <ClCompile Include="ProblemLoader.cpp" />
