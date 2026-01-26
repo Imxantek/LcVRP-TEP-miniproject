@@ -18,6 +18,8 @@ public:
 	CIndividual(const CIndividual& pcOther) {
 		this->genotype = pcOther.genotype;
 		this->fitnessVal = pcOther.fitnessVal;
+		this->valid = pcOther.valid; 
+		this->isChanged = pcOther.isChanged;   
 	}
 	double calculateFitness(const CEvaluator &Evaluator);
 	std::pair<CIndividual, CIndividual> cross(const CIndividual& pcOther, double crossProb, std::mt19937 &re) const;

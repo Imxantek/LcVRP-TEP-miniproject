@@ -14,6 +14,7 @@ public:
     std::pair<double, bool> calculateRouteCost(const std::vector<int>& route) const;
     int GetNumGroups() const { return num_groups; }
     int GetNumCustomers() const { return problemData.GetNumCustomers(); }
+	const ProblemData& GetProblemData() const { return problemData; }
 private:
     ProblemData problemData;
     int num_groups;

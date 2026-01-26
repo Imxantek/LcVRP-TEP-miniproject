@@ -22,7 +22,7 @@ CEvaluator::CEvaluator(const ProblemData& problemData, int num_groups) :
 			}
 		}
 	}
-	WRONG_VAL= max_weight * 2;
+	WRONG_VAL= max_weight * 100;
 };
 
 
@@ -99,7 +99,7 @@ std::pair<double, bool> CEvaluator::calculateRouteCost(const std::vector<int>& r
 
 	routeCost += problemData.CalculateDistance(route[size - 1]-1, depotID);
 	if(capacity < weight) {
-		return std::make_pair((weight-capacity)*WRONG_VAL, false);
+		return std::make_pair(routeCost + ((weight - capacity) * WRONG_VAL), false);
 	}
 	return std::make_pair(routeCost, true);
 }

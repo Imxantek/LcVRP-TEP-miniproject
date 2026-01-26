@@ -1,5 +1,9 @@
 ﻿#include "CGeneticAlgorithm.h"
 #include<windows.h>
+#include <algorithm>
+#include <iostream>
+#include <numeric>
+
 CGeneticAlgorithm::CGeneticAlgorithm(CEvaluator& evaluator, int popSize, double crossProb, double mutProb, std::mt19937& re)
     : evaluator(evaluator), popSize(popSize), crossProb(crossProb), mutProb(mutProb), re(re)
 {
@@ -14,11 +18,34 @@ std::vector<int>* CGeneticAlgorithm::GetCurrentBest() {
 }
 void CGeneticAlgorithm::initialize() {
     population.reserve(popSize);
-    bestFitness = DBL_MAX;
-    int solutionSize = evaluator.GetNumCustomers();
+    population.reserve(popSize);
+    const ProblemData& pd = evaluator.GetProblemData();
+
+    const int capacity = pd.GetCapacity();
+    const std::vector<int>& demands = pd.GetDemands(); 
+
+    int numCustomers = evaluator.GetNumCustomers();
+    int numGroups = evaluator.GetNumGroups();
     for (int i = 0; i < popSize; i++) {
-        CIndividual ind(lowerBound, upperBound, solutionSize, re);
-        population.push_back(ind); //optymalne, z racji na semantyke przenoszenia -> vector jest przenoszalny RVO siê tym zajmie
+        std::vector<int> genotype(numCustomers);
+        std::vector<int> randomPermutation(numCustomers);
+        std::iota(randomPermutation.begin(), randomPermutation.end(), 0);
+        std::shuffle(randomPermutation.begin(), randomPermutation.end(), re);
+        int currentGroup = 0;
+        int currentLoad = 0;
+        for (int customerIdx : randomPermutation) {
+            int demand = demands[customerIdx+1];
+            if (currentLoad + demand > capacity && currentGroup < numGroups - 1) {
+                currentGroup++;
+                currentLoad = 0;
+            }
+            genotype[customerIdx] = currentGroup;
+            currentLoad += demand;
+        }
+        CIndividual ind(lowerBound, upperBound, numCustomers, re);
+        ind.setGenotype(genotype);
+        ind.calculateFitness(evaluator);
+        population.push_back(ind);
     }
 }
 void CGeneticAlgorithm::runIteration() {
@@ -39,10 +66,13 @@ void CGeneticAlgorithm::runIteration() {
     std::vector<CIndividual> newPopulation;
     newPopulation.reserve(popSize);
 
-    // Tworzenie elity
-    CIndividual elite;
-    elite.setGenotype(current_best); // Teraz current_best jest bezpieczny (bez -1)
-    elite.calculateFitness(evaluator); // To teraz zadziała poprawnie
+    CIndividual elite(lowerBound, upperBound, evaluator.GetNumCustomers(), re);
+
+    // Dopiero teraz ustawiamy mu najlepszy genotyp
+    elite.setGenotype(current_best);
+
+    // Teraz obiekt jest bezpieczny do użycia
+    elite.calculateFitness(evaluator);
 
     elite.localSearch(evaluator, re);
     if (elite.getFitness() < bestFitness) {
@@ -89,8 +119,8 @@ void CGeneticAlgorithm::runIteration() {
     }
     population = std::move(newPopulation);
     itCounter++;
-	//printValidity(population);
-    //Sleep(500);
+	printValidity(population);
+    Sleep(500);
 }
 int CGeneticAlgorithm::selection() {
     std::uniform_int_distribution<int> randInt(0, popSize - 1);
