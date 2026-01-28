@@ -126,7 +126,6 @@
     <ClInclude Include="CEvaluator.h" />
     <ClInclude Include="CGeneticAlgorithm.h" />
     <ClInclude Include="CIndividual.h" />
-    <ClInclude Include="CInterface.h" />
     <ClInclude Include="ProblemData.h" />
     <ClInclude Include="ProblemLoader.h" />
   </ItemGroup>

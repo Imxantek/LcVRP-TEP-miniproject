@@ -26,11 +26,12 @@ public:
 	int GetDepot() const { return depot; }
 	int GetNumCustomers() const { return dimension - 1; } 
 
-	const vector<Coordinate>& GetCoordinates() const { return coordinates; }
+	vector<Coordinate>& GetCoordinates() { return coordinates; }
 	const vector<int>& GetDemands() const { return demands; }
 	const vector<int>& GetPermutation() const { return permutation; }
 	const vector<vector<double>>& GetEdgeWeights() const { return edge_weights; }
-
+	vector<int>& AccessPermutation() { return permutation; }
+	vector<int>& AccessDemands() { return demands; }
 	void SetName(const string& name) { this->name = name; }
 	void SetDimension(int dimension) {
 		this->dimension = dimension;
@@ -45,6 +46,7 @@ public:
 	void SetDemands(const vector<int>& demands) { this->demands = demands; }
 	void SetPermutation(const vector<int>& permutation) { this->permutation = permutation; }
 	void SetEdgeWeights(const vector<vector<double>>& edge_weights) { this->edge_weights = edge_weights; }
+
 
 	double CalculateDistance(int i, int j) const;
 	void BuildEdgeWeightMatrix();

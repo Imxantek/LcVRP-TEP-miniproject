@@ -24,7 +24,7 @@ private:
 	double bestFitness=INT_MAX;
 	int lowerBound = 0;
 	int upperBound;
-	int selection();
+	int selection(bool isStagnating);
 
 
 

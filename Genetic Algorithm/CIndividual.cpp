@@ -16,7 +16,7 @@ double CIndividual::calculateFitness(const CEvaluator& evaluator) {
 }
 std::pair<CIndividual, CIndividual> CIndividual::cross(const CIndividual& pcOther, double crossProb, std::mt19937& re) const {
     std::uniform_real_distribution<double> d_dist(0, 1);
-    if (d_dist(re) > crossProb) { // Jeśli nie krzyżujemy, zwracamy kopie
+    if (d_dist(re) > crossProb) { 
         return std::make_pair(*this, pcOther);
     }
 
@@ -34,52 +34,41 @@ std::pair<CIndividual, CIndividual> CIndividual::cross(const CIndividual& pcOthe
 }
 
 void CIndividual::localSearch(const CEvaluator& evaluator, std::mt19937& re) {
-    // Zwiększamy liczbę prób - sprawdzamy 20 klientów zamiast 1
     int clientsToCheck = 20;
-
     std::uniform_int_distribution<int> distGen(0, genotype.size() - 1);
     std::uniform_int_distribution<int> distGroup(0, evaluator.GetNumGroups() - 1);
-
     for (int k = 0; k < clientsToCheck; k++) {
         int customerIdx = distGen(re);
         int originalGroup = genotype[customerIdx];
-
-        // Pobieramy aktualny fitness (możesz użyć this->fitnessVal, jeśli jest aktualny)
         double currentFitness = fitnessVal;
-
-        // Próbujemy 10 razy znaleźć lepszą grupę dla tego klienta
         for (int i = 0; i < 10; i++) {
             int newGroup = distGroup(re);
             if (newGroup == originalGroup) continue;
-
             genotype[customerIdx] = newGroup;
-
-            // Szybka ocena zmiany
             std::pair<double, bool> result = evaluator.Evaluate(genotype);
             double newFitness = result.first;
-
             if (newFitness < currentFitness) {
-                // Znaleziono poprawę! Zostawiamy zmianę.
                 fitnessVal = newFitness;
-                valid = result.second; // Aktualizujemy flagę valid
+                valid = result.second; 
                 currentFitness = newFitness;
                 originalGroup = newGroup;
                 isChanged = true;
-                break; // Idziemy do następnego klienta
+                break; 
             }
             else {
-                genotype[customerIdx] = originalGroup; // Cofamy zmianę
+                genotype[customerIdx] = originalGroup; 
             }
         }
     }
 }
 void CIndividual::mutate(double mutProb, std::mt19937& re, int lowerBound, int upperBound) {
     std::uniform_real_distribution<double> d_dist(0, 1);
-    std::uniform_int_distribution<int> int_dist(lowerBound, upperBound-1);
-    for (int& gene : genotype) {
-        if (mutProb > d_dist(re)) {
+    for (int i = 0; i < genotype.size(); i++) {
+        if (d_dist(re) < mutProb) {
             isChanged = true;
-            gene = int_dist(re);
+            std::uniform_int_distribution<int> distGen(0, genotype.size() - 1);
+            int j = distGen(re);
+            std::swap(genotype[i], genotype[j]);
         }
     }
 }

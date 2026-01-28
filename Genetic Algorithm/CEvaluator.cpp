@@ -44,26 +44,6 @@ std::pair<double,bool> CEvaluator::Evaluate(const vector<int>& solution) const {
 	return total_cost;
 }
 
-bool CEvaluator::isValid(const vector<int>& solution) const {
-	for (int i : solution) {
-		if (i<0 || i>num_groups - 1) {
-			return false;
-		}
-	}
-	return true;
-}
-
-//bool CEvaluator::validateConstraints() const {
-//	int depotID = problemData.GetDepot() - 1;
-//	int capacity = problemData.GetCapacity();
-//	const vector<int>& demands = problemData.GetDemands();
-//	for (int i = 2; i <= problemData.GetDimension(); i++) {
-//		int customerID = i - 1;
-//		if (demands[customerID] > capacity) return false;
-//	}
-//	return true;
-//}
-
 void CEvaluator::build(std::vector<std::vector<int>>& routes, const std::vector<int>& solution) const {
 	const vector<int>& permutation = problemData.GetPermutation();
 	size_t permSize = permutation.size();
@@ -83,20 +63,15 @@ std::pair<double, bool> CEvaluator::calculateRouteCost(const std::vector<int>& r
 	int depotID = problemData.GetDepot() - 1;
 	double routeCost = 0.0;
 	double capacity = problemData.GetCapacity();
-	
-
 	int weight = 0;
 	const size_t size = route.size();
 	const vector<int>& demands = problemData.GetDemands();
-
 	routeCost += problemData.CalculateDistance(depotID, route[0]-1);
 	weight += demands[route[0]-1];
-
 	for (size_t i = 0; i < size - 1; i++) {
 		weight += demands[route[i+1]-1];
 		routeCost += problemData.CalculateDistance(route[i]-1, route[i + 1]-1);
 	}
-
 	routeCost += problemData.CalculateDistance(route[size - 1]-1, depotID);
 	if(capacity < weight) {
 		return std::make_pair((weight - capacity) * WRONG_VAL + routeCost, false);

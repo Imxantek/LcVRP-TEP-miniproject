@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <ctime>   // Do pomiaru czasu
+#include <ctime>
 #include "ProblemLoader.h"
 #include "ProblemData.h"
 #include "CEvaluator.h"
@@ -10,10 +10,10 @@
 using namespace std;
 void StartOptimizationByNums(const string& folder_name, const string& instance_name, int num_groups, int max_iterations) {
 	ProblemLoader problem_loader(folder_name, instance_name);
-	ProblemData problem_data = problem_loader.LoadProblem();
+	ProblemData problem_data = problem_loader.Load();
 	std::mt19937 re;
 	CEvaluator evaluator(problem_data, num_groups);
-	CGeneticAlgorithm optimizer(evaluator, 2048, 0.6, 0.05, re);
+	CGeneticAlgorithm optimizer(evaluator, 200, 0.70, 0.2, re);
 
 	optimizer.initialize();
 	for (int i = 0; i < max_iterations; i++) {
@@ -23,9 +23,9 @@ void StartOptimizationByNums(const string& folder_name, const string& instance_n
 	std::vector<int>* bestSolution = optimizer.GetCurrentBest();
 	cout << "Best Fitness: " << evaluator.Evaluate(*bestSolution).first;
 }
-void StrartOptimizationByTime(const string& folder_name, const string& instance_name, int num_groups, int maxTime) {
+void StartOptimizationByTime(const string& folder_name, const string& instance_name, int num_groups, int maxTime) {
 	ProblemLoader problem_loader(folder_name, instance_name);
-	ProblemData problem_data = problem_loader.LoadProblem();
+	ProblemData problem_data = problem_loader.Load();
 	std::mt19937 re;
 	CEvaluator evaluator(problem_data, num_groups);
 	CGeneticAlgorithm optimizer(evaluator, 2048, 0.75, 0.05, re);
@@ -48,8 +48,10 @@ void StrartOptimizationByTime(const string& folder_name, const string& instance_
 	cout << "Best Fitness: " << evaluator.Evaluate(*bestSolution).first;
 }
 int main() {
-	int num_groups = 131;
-	int max_iterations = 1000;
+	int time_groups = 131;
 	int maxTime = 10000000; // seconds
-	StrartOptimizationByTime("Vrp-Set-X", "X-n655-k131", num_groups, maxTime);
+	StartOptimizationByTime("Vrp-Set-X", "X-n655-k131", time_groups, maxTime);
+	int num_groups = 5;
+	int max_iterations = 40000;
+	//StartOptimizationByNums("Vrp-Set-A", "A-n32-k5", num_groups, max_iterations);
 }

@@ -9,7 +9,6 @@ class CEvaluator {
 public:
     CEvaluator(const ProblemData& problemData, int num_groups);
     std::pair<double, bool> Evaluate(const vector<int>& solution) const;
-    bool isValid(const vector<int>& solution) const;
     void build(std::vector<std::vector<int>>& routes, const vector<int>& solution) const;
     std::pair<double, bool> calculateRouteCost(const std::vector<int>& route) const;
     int GetNumGroups() const { return num_groups; }

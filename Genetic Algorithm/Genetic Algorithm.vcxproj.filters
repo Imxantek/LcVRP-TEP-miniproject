@@ -24,9 +24,6 @@
     <ClInclude Include="CEvaluator.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="CInterface.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="ProblemData.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>

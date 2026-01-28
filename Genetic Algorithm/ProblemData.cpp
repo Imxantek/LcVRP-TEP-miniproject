@@ -32,7 +32,7 @@ double ProblemData::CalculateDistance(int i, int j) const {
         return edge_weights[i][j];
     }
     throw std::domain_error("This type of edge[ " + edge_weight_type + " ] is unsupported!");*/
-	return edge_weights[i][j];
+    return edge_weights[i][j];
 }
 void ProblemData::BuildEdgeWeightMatrix() {
     if (edge_weight_type == "EUC_2D") {
